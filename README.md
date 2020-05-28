@@ -2,7 +2,7 @@
 This program implements price comparison across multiple grocery services using Selenium webscraping. With it, you can
 
 ## Setting up
-Install all needed packages and download the chromedriver for Selenium. Place that chromedriver in 'venv/bin' or change the CHROMEDRIVER
+Install all needed packages and download the chromedriver for Selenium. Place that chromedriver in 'venv/bin' or change the `CHROMEDRIVER`
 file path listed at the top of instacart.py to the correct location.
 
 Each time you start a new session, export your instacart username and password on the command line.
