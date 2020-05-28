@@ -1,0 +1,64 @@
+# format: search term;quantity;valid possibility 1 (can use regex for all these if desired) OR valid possibility 2;invalid possibility 1 OR invalid possibility 2;default size/weight;nutrition options
+# regex for AND: (?=.*word1)(?=.*word2)(?=.*word3)
+###
+strawberries;32 oz;strawberries;frozen OR dried OR whole OR yogurt
+russet potato;5 lbs;(?=.*russet)(?=.*potato)
+cucumber;1.5 lbs;cucumber;gatorage OR brine OR salad OR pickle OR lime;8 oz
+english cucumber;1.5 lbs;(?=.*english)(?=.*cucumber);0.5 lbs
+scallions;3 bunches;scallions;noodle OR sauce OR soup OR mix
+lettuce;15 oz;lettuce OR salad;shred OR pasta OR spinach
+cherry tomatoes;1 pt;cherry tomat;sauce
+celery;64 oz;celery;soup OR juice OR soda;2 oz
+gala apples;10 lbs;gala;juic
+potatoes;5 lbs;(?=.*yellow)(?=.*potato) OR (?=.*white)(?=.*potato) OR (?=.*gold)(?=.*potato)
+zucchini;28 oz;zucchini;pasta OR green giant OR baby OR frozen
+spinach;32 oz;spinach;frozen OR veg OR ravioli OR feta OR chopped
+fresh basil;1.5 oz;basil;frozen OR chopped OR pesto OR tomat OR dried OR dry OR sauce
+leek;12;leek;mix OR soup;,27 oz
+cabbage;3 lb;cabbage;sour OR sweet;3 lb
+eggs;60;eggs;brown OR farmer's OR country OR add
+honeycrisp apples;10 lbs;honey crisp OR honeycrisp;juic
+firm tofu;3 lbs;(?=.*firm)(?=.*tofu);extra firm
+extra firm tofu;3 lbs;(?=.*extra firm)(?=.*tofu)
+silk tofu;3 lbs;(?=.*silk)(?=.*tofu)
+silk soy milk;3 gallons;(?=.*silk)(?=.*soy)(?=.*milk)
+soy yogurt;32 oz;(?=.*soy)(?=.*yogurt) OR (?=.*dairy.free)(?=.*yogurt)
+cottage cheese;32 oz;cottage cheese
+Coffee Mate Peppermint mocha coffee creamer;16 oz;(?=.*coffee.mate)(?=.*peppermint)(?=.*mocha)
+light cream cheese;16 oz;(?=.*cream cheese)(?=.*light)
+frozen broccoli florets;16 lbs;(?=.*broccoli)(?=.*floret);cauliflower OR carrot
+frozen green beans;16 lbs;(?=.*whole)(?=.*green beans)
+chopped spinach;4 lbs;(?=.*chopped)(?=.*spinach)
+chopped broccoli;4 lbs;(?=.*chopped)(?=.*broccoli) OR (?=.*cut)(?=.*broccoli)
+cut leaf spinach;6 lbs;(?=.*cut leaf)(?=.*spinach)
+frozen cauliflower;9 lbs;cauliflower florets OR SB cauliflower OR shop.*cauliflower;broccoli OR carrot
+Ben & Jerry's frozen yogurt;2 pts;(?=.*jerry)(?=.*yogurt)
+blintzes;18;(?=.*golden)(?=.*blintz)(?=.*cheese)
+moophoria;2 pt;(?=.*moo.phoria)(?=.*light)
+near east rice pilaf;120 oz;(?=.*near east)(?=.*rice pilaf)(?=.*original)
+whole wheat couscous;20 oz;(?=.*whole wheat)(?=.*couscous)
+spray oil;5 oz;spray oil OR cooking spray;olive OR butter
+shelf soy milk;2 gallons;soy.*milk OR soy.*beverage
+nutritional yeast;5 oz;nutritional yeast
+paper cups;200;paper.*cups OR cups.*paper;lid OR filter
+plastic containers;6;large OR deep dish
+quinoa;32 oz;quinoa;rice OR chocolat OR drink OR sweet OR salad
+polar seltzer;20 L;(?=.*polar)(?=.*seltzer)
+pita chips;72 oz;(?=.*pita)(?=.*simply)
+dried cranberries;72 oz;dried cranberries OR craisins;yogurt OR nut
+newman's own tomato sauce;192 oz;(?=.*newman's)(?=.*marinara)
+natrel milk;3 qts;natrel skim OR skim natrel
+lox;2 lbs;lox OR smoked salmon;;;;kosher
+tahina;11 oz;t.hin.;;;;kosher
+light mayonnaise;20 oz;(?=.*light)(?=.*mayo)(?=.*hellmann's);;;net
+vegetable broth;180 oz;vegetable broth;;;;kosher
+hummus;34 oz;hummus;dressing;;;kosher
+black beans;31 oz;black beans;;;;kosher
+blueberries;12 oz;blueberries;frozen OR dried OR whole OR o organics OR signature OR frost OR toast OR seal OR dog food
+cheesecake;16 oz;cheese.*cake;ice.*cream OR yogurt OR pudding OR gelato;;;kosher
+cheesecake;16 oz;cheese.*cake;ice.*cream OR yogurt OR pudding OR gelato;;;kosher
+mushrooms;32 oz;mushroom;soup OR sauce OR stock OR gravy OR stems OR pieces
+mango;2.6 lbs;mango;frozen OR dried OR juice OR gator OR thirst OR peach OR v8 OR drink OR nectar OR fruit OR lemon OR tea OR ice OR water OR bev;0.5 lbs
+skim milk;2 gallons;skim OR fat.*free OR no fat;oakhurst OR cheese
+###
+bananas;80 oz;banana;frozen OR dried OR sliced OR chocolate OR yogurt OR ice OR cream OR strawberry;4 oz,16 oz
