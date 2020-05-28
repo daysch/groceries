@@ -11,6 +11,7 @@ from selenium.webdriver.common.keys import Keys
 """ NOTE: to add another store, create the appropriate product and shopper classes, 
           add the store in STORES, and update the browseforme __init__"""
 STORES = ["peapod"]#"star-markets","wegmans","market-basket","stop-shop"]
+# Note: these are the store names as they appear in the Instacart URL
 INSTACART_STORES = ['market-basket',"star-markets","wegmans","market-basket","stop-shop"]
 SHOPPINGLISTFILE = 'shopping_list.txt'
 
@@ -23,8 +24,8 @@ SITE_LOGIN_BUTTON = '//button[@type="submit"]'
 ADD_TO_CART_BUTTON = "//button"
 EMAIL_FIELD_ID = "nextgen-authenticate.all.log_in_email"
 PASSWD_FIELD_ID = "nextgen-authenticate.all.log_in_password"
-INSTACART_EMAIL = os.environ['INSTACART_EMAIL']
-INSTACART_PASSWD = os.environ['INSTACART_PASSWD']
+INSTACART_EMAIL = os.environ['INSTACART_EMAIL'] if 'INSTACART_EMAIL' in os.environ else None
+INSTACART_PASSWD = os.environ['INSTACART_PASSWD'] if 'INSTACART_PASSWD' in os.environ else None
 
 WAIT_FOR_MAIN_SITE = 5
 WAIT_FOR_LOGIN_PAGE = 5
@@ -56,7 +57,7 @@ PEAPOD_NUTRITION = {'kosher':'Kosher-filter','vegan':'Dairy-Free-filter',
 # class for storing product information
 class Product:
     def __init__(self,name,price,quantity,defaultQ,idx,searchTerm,nutrition=None,bunchdefaultQ=None):
-        # set product name, price, index on page, total cost variable, original cost,a nd nutrition
+        # set product name, price, index on page, total cost variable, original cost, and nutrition
         self.name = name
         self.originalPrice = price
         self.searchTerm = searchTerm
@@ -828,6 +829,6 @@ if __name__ == '__main__':
                 continue
             # save results
             driver.save_results()
-
-    driver.save_results()
-    driver.close_and_quit()
+    if driver:
+        driver.save_results()
+        driver.close_and_quit()
