@@ -7,7 +7,7 @@ file path listed at the top of instacart.py to the correct location.
 
 Each time you start a new session, export your instacart username and password on the command line.
 
-To change which stores are being checked, edit the "STORES" variable in instacart.py.
+To change which stores are being checked, edit the `STORES` variable in instacart.py.
 
 ## Running
 Edit shopping_list.txt to contain your shopping list (see below). 
@@ -80,7 +80,7 @@ You may comment out individual products by typing a single `#` at the beginning 
 by making a line with just the characters `###`. To end a comment, make another such line.
 
 ## Adding stores
-To add another store, create the appropriate product and shopper classes, add the store in STORES, and update the BrowseForMe `__init__`.
+To add another store, create the appropriate product and shopper classes, add the store in `STORES`, and update the BrowseForMe `__init__`.
 
 ## Acknowledgements
 My gratitude to @rambattu for the Instacart login: https://github.com/rambattu/cart-you-there/blob/master/find_me_slot.py
