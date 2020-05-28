@@ -42,7 +42,7 @@ This is the file that contains your shopping list. The shopping list must be in 
 Many examples can be found in shopping_list.txt:
 
 search term;quantity;valid possibility 1 OR valid possibility 2;invalid possibility 1 OR invalid possibility 2;
-default weight,default bunch weight;nutrition option 1,nutrition option 2
+default weight,default bunch weight;nutrition option 1,nutrition option 2;minimum cost criterion
 
 **search term**: The term that will be typed in the search bar. This must be unique for each item, as 
 it is used that the key when storing information about the search.
@@ -71,6 +71,10 @@ If you don't the program will give you a warning and skip the item, potentially 
 **nutrition option 1,nutrition option 2**: Instacart allows certain nutrition filters. Options are: 
 vegan, kosher, is_organic, fat_free, gluten_free, and sugar_free. You may choose as many filters as desired by sepearating each by commas.
 While peapod also allows filtering, it blocks automated attempts at doing so. Therefore, at least for now, peapod searches ignore these options.
+
+**minimum cost criterion**: There are two ways to define the cheapest product: the one that costs the least amount for you to get the desired quantity of prooduct, or the one that costs the least per unit of product. The default is set to unit, but you may want to set it differently depending on the product.
+
+It is possible to change the default options for minimum cost standard and nutrition. To do this, include a line that starts with `options;`. The format for the rest of the line is then `default minimum cost criterion;default nutrition options 1,default nutrition option 2[,...]`. This will become the default for all future lines.
 
 You may comment out individual products by typing a single `#` at the beginning of a line. You may comment out a block of lines 
 by making a line with just the characters `###`. To end a comment, make another such line.
