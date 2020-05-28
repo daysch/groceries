@@ -1,5 +1,5 @@
 # groceries
-This program implements price comparison across multiple grocery services using Selenium webscraping. With it, you can
+This program implements price comparison across multiple grocery services using Selenium webscraping. With it, you can see which stores have the best prices for products, and once you have decided the best store, automatically add those products to your cart.
 
 ## Setting up
 Install all needed packages and download the chromedriver for Selenium. Place that chromedriver in 'venv/bin' or change the `CHROMEDRIVER`
@@ -35,7 +35,7 @@ When done, select 'quit' to close the browser and end the program.
 
 ## instacart.py
 This is the backbone of the program. It implements a "Product" class that contains relevant necessary information, as well as
-an abstract "Shopper" class for each store that is being compared
+an abstract "Shopper" class for each store that is being compared.
 
 ## shopping_list.txt
 This is the file that contains your shopping list. The shopping list must be in the following format. Note the semicolons and commas.
