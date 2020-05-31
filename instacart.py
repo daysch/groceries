@@ -8,9 +8,7 @@ from selenium import webdriver
 from abc import ABC, abstractmethod
 from selenium.webdriver.common.keys import Keys
 
-""" NOTE: to add another store, create the appropriate product and shopper classes, 
-          add the store in STORES, and update the browseforme __init__"""
-STORES = ["peapod"]#"star-markets","wegmans","market-basket","stop-shop"]
+STORES = ["amazon","peapod","star-markets","wegmans","market-basket","stop-shop"]
 # Note: these are the store names as they appear in the Instacart URL
 INSTACART_STORES = ['market-basket',"star-markets","wegmans","market-basket","stop-shop"]
 SHOPPINGLISTFILE = 'shopping_list.txt'
@@ -50,11 +48,13 @@ AMZN_ZIPCODE_WAIT = 2
 AMZN_EMAIL = os.environ['AMZN_EMAIL'] if 'AMZN_EMAIL' in os.environ else None
 AMZN_PASSWD = os.environ['AMZN_PASSWD'] if 'AMZN_PASSWD' in os.environ else None
 AMZN_ZIPCODE = os.environ['AMZN_ZIPCODE'] if 'AMZN_ZIPCODE' in os.environ else None
+AMZN_SEARCH_WAIT = 5
+AMZN_ADD_WAIT = 2
 
 ROUND_WAIT_TIME = 3*60 # 3 minutes
 ROUND_COUNT = 160 # Roughly 8 hours
 
-NUTRITION_OPTIONS = set(['vegan','kosher','is_organic','fat_free','gluten_free','sugar_free'])
+NUTRITION_OPTIONS = {'vegan','kosher','is_organic','fat_free','gluten_free','sugar_free'}
 PEAPOD_NUTRITION = {'kosher':'Kosher-filter','vegan':'Dairy-Free-filter',
                     'gluten_free':'Gluten-Free-filter','is_organic':'Organic-filter',
                     'fat_free':None,'sugar_free':None}
@@ -74,7 +74,7 @@ class Product:
         self.idx = idx
         self.total = None
         self.originalQuantity = quantity
-        self.nutriton = nutrition
+        self.nutrition = nutrition
         self.desired_quantity = None
 
         # determine unit quantity
@@ -204,6 +204,13 @@ class InstacartShopper(Shopper):
             raise Exception("FAILED TO LOCATE LOGIN BUTTON ON MAIN PAGE")
         login_btn.click()
         time.sleep(WAIT_FOR_LOGIN_PAGE)
+
+        if not INSTACART_EMAIL:
+            print('')
+            input('No instacart email exported. Please log in manually, then press enter')
+            time.sleep(WAIT_FOR_LOGGING_IN)
+            self.logged_in = True
+            return
 
         email_field = self.browser.find_element_by_id(EMAIL_FIELD_ID)
         if not email_field:
@@ -495,7 +502,6 @@ class PeaShopper(Shopper):
         time.sleep(PEAPOD_ZIP_WAIT)
         self.told_zipcode = True
 
-
     def close(self):
         super().close()
 
@@ -521,10 +527,12 @@ class AmazonShopper(Shopper):
 
         # go to search page
         if nutrition:
-            url = f'https://www.amazon.com/s?k={"+".join(desiredItem.name)}&i=amazonfresh&rh=p_n_feature_nine_browse-bin%'+'%'.join([AMZN_NUTRITION[nut] for nut in nutrition])
+            url = f'https://www.amazon.com/s?k={"+".join(desiredItem.name.split())}&i=amazonfresh&rh=p_n_feature_nine_browse-bin%'+'%'.join([AMZN_NUTRITION[nut] for nut in nutrition])
         else:
-            url = f'https://www.amazon.com/s?k={"+".join(desiredItem.name)}&i=amazonfresh'
+            url = f'https://www.amazon.com/s?k={"+".join(desiredItem.name.split())}&i=amazonfresh'
         self.browser.get(url)
+
+        time.sleep(AMZN_SEARCH_WAIT)
 
         # parse out items on page
         items = self.browser.find_elements_by_xpath('//div[@data-component-type="s-search-result"]')
@@ -559,7 +567,7 @@ class AmazonShopper(Shopper):
             # find item size
             try:
                 unitPrice = item.find_element_by_xpath('.//span[@class="a-price"]').find_elements_by_xpath('../span')[1].text[2:].split('/')
-                itemSize = str(round(float(itemPrice)/float(unitPrice[0]))) + ' ' + unitPrice[1]
+                itemSize = str(round(float(itemPrice)/float(unitPrice[0]),1)) + ' ' + unitPrice[1]
             except:
                 print(f'Error in finding size information in store {store} for product {itemName} (item {i}) of product search {desiredItem}')
                 continue
@@ -580,7 +588,41 @@ class AmazonShopper(Shopper):
         return itemsInfo
 
     def add_to_cart(self, store, products):
-        pass # TODO
+        if not self.logged_in:
+            self.login()
+
+        # add products to cart
+        for product in products:
+            # go to search page
+            if product.nutrition:
+                url = f'https://www.amazon.com/s?k={"+".join(product.searchTerm.split())}&i=amazonfresh&rh=p_n_feature_nine_browse-bin%' + '%'.join(
+                    [AMZN_NUTRITION[nut] for nut in product.nutrition])
+            else:
+                url = f'https://www.amazon.com/s?k={"+".join(product.searchTerm.split())}&i=amazonfresh'
+            self.browser.get(url)
+            time.sleep(AMZN_SEARCH_WAIT)
+
+            # determine how many we want total
+            numProducts = math.ceil(product.desired_quantity/product.quantity)
+
+            try:
+                # find item
+                item = self.browser.find_elements_by_xpath('//div[@data-component-type="s-search-result"]')[product.idx]
+
+                if item.find_element_by_xpath('.//h2/a/span').text != product.name:
+                    print(f'ERROR: {product} isn\'t where it was earlier. Please add to cart manually.')
+                    continue
+
+                # add first item to cart
+                for i in range(numProducts):
+                    item.find_element_by_tag_name('input').click()
+                    time.sleep(AMZN_ADD_WAIT)
+
+            except Exception as e:
+                print(
+                    f'ERROR: Unable to add item to cart or insufficient quantity added: {product} with quantity {numProducts}')
+                print(e)
+
 
     def zipcode(self):
         self.browser.find_element_by_id('nav-global-location-slot').click()
@@ -598,17 +640,8 @@ class AmazonShopper(Shopper):
 # https://github.com/rambattu/cart-you-there/blob/master/find_me_slot.py
 class BrowseForMe:
     def __init__(self,recover=False):
-        # create shopper objects
-        if any(store in STORES for store in INSTACART_STORES):
-            iShopper = InstacartShopper()
-        else:
-            iShopper = None
-        if 'peapod' in STORES:
-            pShopper = PeaShopper()
-        else:
-            pShopper = None
-        self.shoppers = {"market-basket": iShopper, "star-markets": iShopper, "wegmans": iShopper,
-                         "stop-shop":iShopper,"peapod":pShopper}
+        # create shopper dict
+        self.shoppers = {}
 
         # attempt to recover previous session data, or start from scratch
         if recover:
@@ -630,16 +663,7 @@ class BrowseForMe:
         save_every_x = 10
         defaultNutrition = []
         commented_out = False
-
-        # set up store running totals
-        for store in STORES:
-            if not store in self.storeLists:
-                self.storeLists[store] = dict()
-
-                # running total of shopping lists
-                self.storeLists[store]['total'] = 0
-                self.storeLists[store]['adjusted_total'] = 0
-                self.storeLists[store]['missingItems'] = []
+        stores = None
 
         # check each desired item
         for j, itemRequest in enumerate(shoppingList):
@@ -651,19 +675,25 @@ class BrowseForMe:
             if commented_out or itemRequest[0][0] == '#':
                 continue
 
-            # options line (Options;unit/net
+            # options line (Options;stores;unit/net;nutrition
             if itemRequest[0].lower() == 'options':
-                # net vs unit price
+                # stores to search
                 if len(itemRequest) > 1:
-                    if itemRequest[1].lower() == 'net':
+                    stores = [req.strip() for req in itemRequest[1].split(',')]
+                    self.add_shoppers(stores)
+
+                # net vs unit price
+                if len(itemRequest) > 2:
+                    if itemRequest[2].lower() == 'net':
                         defaultMinCriterion = 'net'
-                    elif itemRequest[1].lower() == 'unit':
+                    elif itemRequest[2].lower() == 'unit':
                         defaultMinCriterion = 'unit'
                     else:
                         print(f'ERROR: Unable to parse default criterion for minimum price. Using default: {defaultMinCriterion}')
+
                 # instacart's nutrition options
-                if len(itemRequest) > 2:
-                    nutrition = itemRequest[2].split(',')
+                if len(itemRequest) > 3:
+                    nutrition = itemRequest[3].split(',')
                     if all([nut in NUTRITION_OPTIONS for nut in nutrition]):
                         defaultNutrition = nutrition
                     else:
@@ -671,6 +701,12 @@ class BrowseForMe:
                 continue
             minCriterion = defaultMinCriterion
             nutrition = defaultNutrition
+
+            # make sure we have stores to search
+            if not stores:
+                stores = STORES
+                self.add_shoppers(stores)
+                print(f"Using default stores: {','.join([store for store in STORES])}")
 
             # parse item name/quantity
             try:
@@ -735,7 +771,7 @@ class BrowseForMe:
                         nutrition = defaultNutrition
 
             # check stores for items
-            for store in STORES:
+            for store in stores:
                 # if item already in store, subtract it from total, then remove from shopping list
                 if desiredItem.name in self.storeLists[store]['missingItems']:
                     self.storeLists[store]['missingItems'].remove(desiredItem.name)
@@ -769,19 +805,19 @@ class BrowseForMe:
 
     def analyze(self):
         # generate list of products
-        products = [product for product in self.storeLists[STORES[0]] if isinstance(self.storeLists[STORES[0]][product],Product) or self.storeLists[STORES[0]][product] is None]
+        products = set([product for store in self.storeLists for product in self.storeLists[store] if isinstance(self.storeLists[store][product],Product) or self.storeLists[store][product] is None])
 
         # save product info to file
         with open('shopping_lists.csv','w+') as csvfile:
             prodWriter = csv.writer(csvfile)
             # column headers
-            prodWriter.writerow(['Product']+[store_term for store in STORES for store_term in (str(store) + ' product name','net price (unit price)')])
+            prodWriter.writerow(['Product']+[store_term for store in self.storeLists for store_term in (str(store) + ' product name','net price (unit price)')])
 
             # write each product's info
             for product in products:
                 costs_and_names = []
-                for store in STORES:
-                    if self.storeLists[store][product]:
+                for store in self.storeLists:
+                    if product in self.storeLists[store] and self.storeLists[store][product]:
                         costs_and_names.append(self.storeLists[store][product].name)
                         costs_and_names.append(f'{"{:.2f}".format(self.storeLists[store][product].total)} '
                                                f'({self.storeLists[store][product].originalPrice}'
@@ -791,17 +827,19 @@ class BrowseForMe:
                 prodWriter.writerow([product] + costs_and_names)
 
             # write totals
-            prodWriter.writerow(['Totals'] + [store_term for store in STORES for store_term in
+            prodWriter.writerow(['Totals'] + [store_term for store in self.storeLists for store_term in
                                                ('Total:', "{:.2f}".format(self.storeLists[store]['total']))])
 
-            # calculate adjusted totals, averaging the price from other stores with the product if this store didn't have it
-            totals = [self.storeLists[store]['total'] for store in STORES]
-            for i, currentStore in enumerate(STORES):
-                for product in self.storeLists[currentStore]['missingItems']:
+            # calculate adjusted totals, averaging the price from other stores with the product if store didn't have
+            totals = [self.storeLists[store]['total'] for store in self.storeLists]
+            for i, currentStore in enumerate(self.storeLists):
+                for product in products:
+                    if product in self.storeLists[currentStore] and self.storeLists[currentStore][product]:
+                        continue
                     finds = 0
                     total = 0
-                    for otherStore in STORES:
-                        if self.storeLists[otherStore][product]:
+                    for otherStore in self.storeLists:
+                        if product in self.storeLists[otherStore] and self.storeLists[otherStore][product]:
                             total += self.storeLists[otherStore][product].total
                             finds += 1
                     if finds:
@@ -814,20 +852,21 @@ class BrowseForMe:
         with open('missing.csv','w+') as csvfile:
             prodWriter = csv.writer(csvfile)
             # column headers
-            prodWriter.writerow(STORES)
+            prodWriter.writerow(self.storeLists)
             for product in products:
-                missing = [self.storeLists[store][product] is None for store in STORES]
+                missing = [product not in self.storeLists[store] or self.storeLists[store][product] is None for store in self.storeLists]
                 if any(missing):
                     prodWriter.writerow([product if missing[i] else '' for i in range(len(missing))])
 
     def add_to_cart(self,store):
         # get list of products
-        if store not in STORES:
+        if store not in self.storeLists:
             print('ERROR: Invalid Store')
             return
-        products = [self.storeLists[store][product] for product in self.storeLists[store] if isinstance(self.storeLists[STORES[0]][product],Product)]
+        products = [self.storeLists[store][product] for product in self.storeLists[store] if isinstance(self.storeLists[store][product],Product)]
 
         # add products to cart
+        self.add_shoppers([store])
         self.shoppers[store].add_to_cart(store,products)
 
     def save_results(self):
@@ -844,7 +883,7 @@ class BrowseForMe:
         # completely delete product
         if store_to_remove == 'all':
             success = False
-            for store in STORES:
+            for store in self.storeLists:
                 try:
                     del self.storeLists[store][product_name]
                     success = True
@@ -853,14 +892,46 @@ class BrowseForMe:
             return success
         # remove product from single store
         else:
-            if not store_to_remove in STORES:
+            if not store_to_remove in self.storeLists:
                 print('ERROR: Invalid Store')
                 return True
             try:
-                self.storeLists[store_to_remove][product_name] = None
+                del self.storeLists[store_to_remove][product_name]
                 return True
             except:
                 return False
+
+    def add_shoppers(self,stores):
+        for store in stores:
+            # already have store shopper
+            if store in self.shoppers:
+                continue
+
+            # create shopper objects
+            if store in INSTACART_STORES:
+                iShopper = InstacartShopper()
+                self.shoppers.update({"market-basket": iShopper, "star-markets": iShopper, "wegmans": iShopper,
+                                      "stop-shop": iShopper})
+            elif store == 'peapod':
+                pShopper = PeaShopper()
+                self.shoppers.update({"peapod":pShopper})
+            elif store == 'amazon':
+                aShopper = AmazonShopper()
+                self.shoppers.update({"amazon":aShopper})
+            else:
+                print(f'ERROR: Unsupported store {store}')
+                continue
+
+            if not store in self.storeLists:
+                stores_to_add = INSTACART_STORES if store in INSTACART_STORES else [store]
+                for s in stores_to_add:
+                    # store list dictionary
+                    self.storeLists[s] = dict()
+
+                    # running total of shopping lists
+                    self.storeLists[s]['total'] = 0
+                    self.storeLists[s]['adjusted_total'] = 0
+                    self.storeLists[s]['missingItems'] = []
 
 if __name__ == '__main__':
     action = None

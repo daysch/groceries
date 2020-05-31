@@ -57,8 +57,9 @@ black beans;31 oz;black beans;;;;kosher
 blueberries;12 oz;blueberries;frozen OR dried OR whole OR o organics OR signature OR frost OR toast OR seal OR dog food
 cheesecake;16 oz;cheese.*cake;ice.*cream OR yogurt OR pudding OR gelato;;;kosher
 cheesecake;16 oz;cheese.*cake;ice.*cream OR yogurt OR pudding OR gelato;;;kosher
-mushrooms;32 oz;mushroom;soup OR sauce OR stock OR gravy OR stems OR pieces
-mango;2.6 lbs;mango;frozen OR dried OR juice OR gator OR thirst OR peach OR v8 OR drink OR nectar OR fruit OR lemon OR tea OR ice OR water OR bev;0.5 lbs
-skim milk;2 gallons;skim OR fat.*free OR no fat;oakhurst OR cheese
-###
 bananas;80 oz;banana;frozen OR dried OR sliced OR chocolate OR yogurt OR ice OR cream OR strawberry;4 oz,16 oz
+skim milk;2 gallons;skim OR fat.*free OR no fat;oakhurst OR cheese
+mango;2.6 lbs;mango$ OR mangoes$ OR mangos$;frozen OR dried OR juice OR gator OR thirst OR peach OR v8 OR drink OR nectar OR fruit OR lemon OR tea OR ice OR water OR bev OR seltz;0.5 lbs
+###
+options;amazon
+mushrooms;32 oz;mushroom;soup OR sauce OR stock OR gravy OR stems OR pieces OR ravioli OR broth OR bread OR crisp
