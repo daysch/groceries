@@ -1,4 +1,4 @@
-# format: search term;quantity;valid possibility 1 (can use regex for all these if desired) OR valid possibility 2;invalid possibility 1 OR invalid possibility 2;default size/weight;nutrition options
+# format: search term;quantity;valid possibility 1 (can use regex for all these if desired) OR valid possibility 2;invalid possibility 1 OR invalid possibility 2;default size/weight;nutrition options;minimum cost criterion
 # regex for AND: (?=.*word1)(?=.*word2)(?=.*word3)
 ###
 strawberries;32 oz;strawberries;frozen OR dried OR whole OR yogurt

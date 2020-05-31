@@ -45,12 +45,21 @@ PEAPOD_ZIP_EXTRA_WAIT = 0.25
 PEAPOD_ZIP_WAIT = 10
 ZIPCODE = ''
 
+AMZN_LOGIN_WAIT = 2
+AMZN_ZIPCODE_WAIT = 2
+AMZN_EMAIL = os.environ['AMZN_EMAIL'] if 'AMZN_EMAIL' in os.environ else None
+AMZN_PASSWD = os.environ['AMZN_PASSWD'] if 'AMZN_PASSWD' in os.environ else None
+AMZN_ZIPCODE = os.environ['AMZN_ZIPCODE'] if 'AMZN_ZIPCODE' in os.environ else None
+
 ROUND_WAIT_TIME = 3*60 # 3 minutes
 ROUND_COUNT = 160 # Roughly 8 hours
 
 NUTRITION_OPTIONS = set(['vegan','kosher','is_organic','fat_free','gluten_free','sugar_free'])
 PEAPOD_NUTRITION = {'kosher':'Kosher-filter','vegan':'Dairy-Free-filter',
                     'gluten_free':'Gluten-Free-filter','is_organic':'Organic-filter',
+                    'fat_free':None,'sugar_free':None}
+AMZN_NUTRITION = {'kosher':'3A114321011','vegan':'3A114322011',
+                    'gluten_free':'3A114329011','is_organic':'3A114320011',
                     'fat_free':None,'sugar_free':None}
 
 
@@ -116,7 +125,7 @@ class Product:
             quantity[0] = float(quantity[0])
 
         # regular units
-        if 'oz' in quantity[1] or 'ounce' in quantity[1]:
+        if 'oz' in quantity[1] or 'ounce' in quantity[1].lower():
             return quantity[0]
         if 'pt' in quantity[1] or 'pint' in quantity[1]:
             return quantity[0]*16
@@ -149,9 +158,13 @@ class Product:
 class InstaProduct(Product):
     pass
 
+
 class PeaProduct(Product):
     pass
 
+
+class AmazonProduct(Product):
+    pass # TODO
 
 class Shopper(ABC):
     @abstractmethod
@@ -176,6 +189,7 @@ class Shopper(ABC):
         if self.browser:
             self.browser.close()
             self.browser = None
+
 
 class InstacartShopper(Shopper):
     def __init__(self):
@@ -485,6 +499,101 @@ class PeaShopper(Shopper):
     def close(self):
         super().close()
 
+class AmazonShopper(Shopper):
+    def __init__(self):
+        super().__init__()
+        self.told_zipcode = False
+
+    def login(self):
+        self.browser.get('https://www.amazon.com/ap/signin?openid.return_to=https%3A%2F%2Fwww.amazon.com%2Ffmc%2Fstorefront%3FalmBrandId%3DQW1hem9uIEZyZXNo%26%3FalmBrandId%3DQW1hem9uIEZyZXNo%26&suppressChangeEmailLink=1&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&suppressSignInRadioButtons=1')
+        input('Please log in in browser to continue, then hit enter here (Amazon blocks automated log ins)')
+
+        time.sleep(AMZN_LOGIN_WAIT)
+        self.logged_in = True
+
+    def search(self, store, nutrition, desiredItem, itemIncludes, itemExcludes, defaultQuantity, bunchDefaultQ):
+        # log in if needed
+        if not self.logged_in and not self.told_zipcode:
+            if AMZN_ZIPCODE:
+                self.zipcode()
+            else:
+                self.login()
+
+        # go to search page
+        if nutrition:
+            url = f'https://www.amazon.com/s?k={"+".join(desiredItem.name)}&i=amazonfresh&rh=p_n_feature_nine_browse-bin%'+'%'.join([AMZN_NUTRITION[nut] for nut in nutrition])
+        else:
+            url = f'https://www.amazon.com/s?k={"+".join(desiredItem.name)}&i=amazonfresh'
+        self.browser.get(url)
+
+        # parse out items on page
+        items = self.browser.find_elements_by_xpath('//div[@data-component-type="s-search-result"]')
+
+        itemsInfo = []
+        for i, item in enumerate(items):
+            # find item name
+            try:
+                itemName = item.find_element_by_xpath('.//h2/a/span').text
+            except Exception as e:
+                print(
+                    f'Error in finding name information in store {store} for item number {i} of product search {desiredItem}')
+                print(e)
+                continue
+
+            # check if out of stock
+            try:
+                item.find_element_by_xpath('.//span[@aria-label="Out of Stock"]')
+                continue
+            except:
+                pass
+
+            # find item price
+            try:
+                itemPrice = item.find_element_by_xpath('.//span[@class="a-price"]').text.replace('\n','.')[1:]
+            except Exception as e:
+                print(
+                    f'Error in finding price information in store {store} for product {itemName} (item {i}) of product search {desiredItem}')
+                print(e)
+                continue
+
+            # find item size
+            try:
+                unitPrice = item.find_element_by_xpath('.//span[@class="a-price"]').find_elements_by_xpath('../span')[1].text[2:].split('/')
+                itemSize = str(round(float(itemPrice)/float(unitPrice[0]))) + ' ' + unitPrice[1]
+            except:
+                print(f'Error in finding size information in store {store} for product {itemName} (item {i}) of product search {desiredItem}')
+                continue
+
+            # add product to list, if it's a valid product
+            try:
+                if re.search(itemIncludes, itemName.lower()) and (
+                        not itemExcludes or not re.search(itemExcludes, itemName.lower())):
+                    newProduct = AmazonProduct(itemName, itemPrice, itemSize, defaultQuantity, i, desiredItem.name, None,
+                                            bunchDefaultQ)
+                    newProduct.totalCost(desiredItem.quantity)
+                    itemsInfo.append(newProduct)
+            except Exception as e:
+                print(
+                    f'Error creating Product Object in {store} item {i}: {itemName} with cost {itemPrice} and quantity {itemSize}')
+                print(e)
+                continue
+        return itemsInfo
+
+    def add_to_cart(self, store, products):
+        pass # TODO
+
+    def zipcode(self):
+        self.browser.find_element_by_id('nav-global-location-slot').click()
+        time.sleep(AMZN_ZIPCODE_WAIT)
+        self.browser.find_element_by_id('GLUXZipUpdateInput').send_keys(AMZN_ZIPCODE)
+        self.browser.find_element_by_id('GLUXZipUpdate').find_element_by_tag_name('input').click()
+        time.sleep(0.25)
+        self.browser.find_element_by_name('glowDoneButton').click()
+
+        self.told_zipcode = True
+
+    def close(self):
+        super().close()
 
 # https://github.com/rambattu/cart-you-there/blob/master/find_me_slot.py
 class BrowseForMe:
