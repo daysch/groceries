@@ -14,7 +14,7 @@ Edit shopping_list.txt to contain your shopping list (see below).
 
 `python3 groceries.m`
 
-You may start by hitting 'shop'. That will take a while, depending on the size of your shopping list. (Note that for Peapod and Amazon, you must sign in manually, since they block automated sign in attempts. You will then hit Enter in the command line once you've logged in. You need only do this once per store per session.)
+You may start by hitting 'shop'. That will take a while, depending on the size of your shopping list. (Note that for Peapod and Amazon, you must sign in manually, since they block automated sign in attempts. You will then hit Enter in the command line once you've logged in. You need only do this once per store per session.) The program will print to the command line any search result it was not able to analyze. You can check these to confirm that it isn't skipping an item that you would want.
 
 After that, you'll want to 'analyze' the results to view the cost from each store. You can view the results in shopping_lists.csv.
 
@@ -69,6 +69,8 @@ It is possible to **change the stores searched or the default options** for mini
 
 You may **comment out** individual products by typing a single `#` at the beginning of a line. You may comment out a block of lines 
 by making a line with just the characters `###`. To end a comment, make another such line.
+
+Final note: It may take some trial and error to fine tune the valid/invalid possibilities to get the correct product. The first time you go through a shopping list, it may take time, but after that, you'll have the correct terms for each item and then it should go more smoothly.
 
 ## shopping_list.csv
 As mentioned above, the search results will be written to this file.
