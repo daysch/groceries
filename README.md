@@ -1,25 +1,24 @@
 # groceries
-This program implements price comparison across multiple grocery services using Selenium webscraping. With it, you can see which stores have the best prices for products, and once you have decided the best store, automatically add those products to your cart.
+This program implements price comparison across multiple grocery services using Selenium webscraping. With it, you can see which stores have the best prices for products, and once you have decided the best store, automatically add those products to your cart. It currently supports Instacart stores (Market Basket, Wegman's, Stop and Shop, and Star Market), Peapod, and Amazon. It can easily be extended to other instacart stores by editing one line, and with a bit more difficulty, you can add other non-Instacart stores (see the 'Adding stores' section below).
 
 ## Setting up
 Install all needed packages and download the chromedriver for Selenium. Place that chromedriver in 'venv/bin' or change the `CHROMEDRIVER`
 file path listed at the top of instacart.py to the correct location.
 
-Each time you start a new session, export your instacart username and password on the command line.
+Each time you start a new session, export your instacart username and password on the command line. If you don't, you will be prompted to log in manually if you are searching an Instacart store.
 
-To change which stores are being checked, edit the `STORES` variable in instacart.py.
+To change which stores are being checked, add an 'options' line in shopping_list.txt (see below).
 
 ## Running
 Edit shopping_list.txt to contain your shopping list (see below). 
 
 `python3 groceries.m`
 
-You may start by hitting 'shop'. That will take a while, depending on the size of your shopping list. (Note that for peapod, you must sign
-in manually, since peapod blocks automated sign in attempts. You will then hit Enter in the command line once you've logged in.)
+You may start by hitting 'shop'. That will take a while, depending on the size of your shopping list. (Note that for Peapod and Amazon, you must sign in manually, since they block automated sign in attempts. You will then hit Enter in the command line once you've logged in.)
 
 After that, you'll want to 'analyze' the results to view the cost from each store. You can view the results in shopping_lists.csv.
 
-You may then want to 'recheck' some of the products with slightly different terms, or add new ones. To do so, simply edit shopping_list.txt
+You may then want to recheck some of the products with slightly different terms, or add new products. To do so, simply edit shopping_list.txt
 and rerun the shop selection (no need to close the program).
 
 If you do not want to re-search a product, but just want to remove it (from one store, or all of them), you may do so with remove.
@@ -68,19 +67,18 @@ than it actually is.
 **default bunch weight**: Some products are also sold by the bunch (bananas, for example). In this case, give a default bunch weight.
 If you don't the program will give you a warning and skip the item, potentially making you miss a good deal.
 
-**nutrition option 1,nutrition option 2**: Instacart allows certain nutrition filters. Options are: 
-vegan, kosher, is_organic, fat_free, gluten_free, and sugar_free. You may choose as many filters as desired by sepearating each by commas.
-While peapod also allows filtering, it blocks automated attempts at doing so. Therefore, at least for now, peapod searches ignore these options.
+**nutrition option 1,nutrition option 2**: Instacart and Amazon allow certain nutrition filters. Options are: 
+vegan, kosher, is_organic, fat_free (Instacart only), gluten_free, and sugar_free (Instacart only). You may choose as many filters as desired by sepearating each by commas. While peapod also allows filtering, it blocks automated attempts at doing so. Therefore, at least for now, peapod searches ignore these options. Stores that do not have the given nutrition option will ignore those options.
 
 **minimum cost criterion**: There are two ways to define the cheapest product: the one that costs the least amount for you to get the desired quantity of prooduct, or the one that costs the least per unit of product. The default is set to unit, but you may want to set it differently depending on the product.
 
-It is possible to change the default options for minimum cost standard and nutrition. To do this, include a line that starts with `options;`. The format for the rest of the line is then `default minimum cost criterion;default nutrition options 1,default nutrition option 2[,...]`. This will become the default for all future lines.
+It is possible to **change the stores searched or the default options** for minimum cost standard and nutrition. To do this, include a line that starts with `options;`. The format for the rest of the line is then `store1,store2,...;default minimum cost criterion;default nutrition options 1,default nutrition option 2,...`. This will become the default for all future lines.
 
-You may comment out individual products by typing a single `#` at the beginning of a line. You may comment out a block of lines 
+You may **comment out** individual products by typing a single `#` at the beginning of a line. You may comment out a block of lines 
 by making a line with just the characters `###`. To end a comment, make another such line.
 
 ## Adding stores
-To add another store, create the appropriate product and shopper classes, add the store in `STORES`, and update the BrowseForMe `__init__`.
+To add another store, create the appropriate product and shopper classes, add the store in `STORES`, and update the BrowseForMe `add_shoppers`. To add another Instacart store, simply add the store name to `INSTACART_STORES` and to `STORES`.
 
 ## Acknowledgements
 My gratitude to @rambattu for the Instacart login: https://github.com/rambattu/cart-you-there/blob/master/find_me_slot.py
