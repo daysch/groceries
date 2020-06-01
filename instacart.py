@@ -678,12 +678,12 @@ class BrowseForMe:
             # options line (Options;stores;unit/net;nutrition
             if itemRequest[0].lower() == 'options':
                 # stores to search
-                if len(itemRequest) > 1:
+                if len(itemRequest) > 1 and itemRequest[1]:
                     stores = [req.strip() for req in itemRequest[1].split(',')]
                     self.add_shoppers(stores)
 
                 # net vs unit price
-                if len(itemRequest) > 2:
+                if len(itemRequest) > 2 and itemRequest[2]:
                     if itemRequest[2].lower() == 'net':
                         defaultMinCriterion = 'net'
                     elif itemRequest[2].lower() == 'unit':
@@ -692,7 +692,7 @@ class BrowseForMe:
                         print(f'ERROR: Unable to parse default criterion for minimum price. Using default: {defaultMinCriterion}')
 
                 # instacart's nutrition options
-                if len(itemRequest) > 3:
+                if len(itemRequest) > 3 and itemRequest[3]:
                     nutrition = itemRequest[3].split(',')
                     if all([nut in NUTRITION_OPTIONS for nut in nutrition]):
                         defaultNutrition = nutrition
