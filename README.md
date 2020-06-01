@@ -21,10 +21,10 @@ After that, you'll want to 'analyze' the results to view the cost from each stor
 You may then want to recheck some of the products with slightly different terms, or add new products. To do so, simply edit shopping_list.txt
 and rerun the shop selection (no need to close the program).
 
-If you do not want to re-search a product, but just want to remove it (from one store, or all of them), you may do so with remove.
+If you do not want to re-search a product, but just want to remove it (from one store, or all of them), you may do so with 'remove'.
 
 If you closed the program, or it crashed accidentally (it autosaves every 10 products searched and at the end of a search), 
-you can reload what you have shopped so far.
+you can 'recover' what you have shopped so far.
 
 You may manually save your cart with 'save results'.
 
@@ -76,6 +76,9 @@ It is possible to **change the stores searched or the default options** for mini
 
 You may **comment out** individual products by typing a single `#` at the beginning of a line. You may comment out a block of lines 
 by making a line with just the characters `###`. To end a comment, make another such line.
+
+## shopping_list.csv
+As mentioned above, the search results will be written to this file.
 
 ## Adding stores
 To add another store, create the appropriate product and shopper classes, add the store in `STORES`, and update the BrowseForMe `add_shoppers`. To add another Instacart store, simply add the store name to `INSTACART_STORES` and to `STORES`.
