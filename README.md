@@ -1,5 +1,5 @@
 # groceries
-This program implements price comparison across multiple grocery services using Selenium webscraping. With it, you can see which stores have the best prices for products, and once you have decided the best store, automatically add those products to your cart. It currently supports Instacart stores (Market Basket, Wegman's, Stop and Shop, and Star Market), Peapod, and Amazon. It can easily be extended to other instacart stores by editing one line, and with a bit more difficulty, you can add other non-Instacart stores (see the 'Adding stores' section below).
+This program implements price comparison across multiple grocery services using Selenium webscraping. With it, you can see which stores have the best prices for products (and which have the products you're looking for at all), and once you have decided the best store, automatically add those products to your cart. It currently supports Instacart stores (Market Basket, Wegman's, Stop and Shop, and Star Market), Peapod, and Amazon. It can easily be extended to other instacart stores by editing one line, and with a bit more difficulty, you can add other non-Instacart stores (see the 'Adding stores' section below).
 
 ## Setting up
 Install all needed packages and download the chromedriver for Selenium. Place that chromedriver in 'venv/bin' or change the `CHROMEDRIVER`
