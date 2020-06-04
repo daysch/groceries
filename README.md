@@ -10,6 +10,8 @@ Each time you start a new session, export your instacart username and password o
 To change which stores are being checked, add an 'options' line in shopping_list.txt (see below).
 
 ## Running
+Make sure your computer will not go to sleep.
+
 Edit shopping_list.txt to contain your shopping list (see below). 
 
 `python3 groceries.m`
